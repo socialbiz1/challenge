@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>66 Days Challenge</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --card: #13131a;
+    --card-hover: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #7c5cfc;
+    --accent-glow: rgba(124, 92, 252, 0.3);
+    --success: #22c55e;
+    --success-glow: rgba(34, 197, 94, 0.3);
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #e4e4e7;
+    --text-dim: #71717a;
+    --text-muted: #52525b;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #7c5cfc, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+
+  .header .subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    font-weight: 300;
+  }
+
+  /* Stats Bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  /* Milestones */
+  .milestones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .milestone {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .milestone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .milestone.m35::before {
+    background: linear-gradient(90deg, var(--warning), #fb923c);
+  }
+
+  .milestone.m66::before {
+    background: linear-gradient(90deg, var(--accent), #c084fc);
+  }
+
+  .milestone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .milestone-title {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .milestone-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .m35 .milestone-badge {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+  }
+
+  .m66 .milestone-badge {
+    background: rgba(124, 92, 252, 0.15);
+    color: var(--accent);
+  }
+
+  .milestone-reward {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .milestone-progress-bar {
+    height: 6px;
+    background: #1e1e2e;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .milestone-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .m35 .milestone-progress-fill {
+    background: linear-gradient(90deg, var(--warning), #fb923c);
+  }
+
+  .m66 .milestone-progress-fill {
+    background: linear-gradient(90deg, var(--accent), #c084fc);
+  }
+
+  .milestone-remain {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .m35 .milestone-remain { color: var(--warning); }
+  .m66 .milestone-remain { color: var(--accent); }
+
+  .milestone-days {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* Week Navigation */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .week-nav button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .week-nav button:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--card-hover);
+  }
+
+  .week-nav button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .week-label {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .week-label span {
+    color: var(--text-dim);
+    font-weight: 400;
+    font-size: 0.85rem;
+  }
+
+  /* Today button */
+  .today-btn {
+    display: block;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--accent), #9b7cfc);
+    border: none;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .today-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px var(--accent-glow);
+  }
+
+  /* Calendar Grid */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: 140px repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 30px;
+  }
+
+  .cal-header {
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .cal-header.today-col {
+    color: var(--accent);
+  }
+
+  .cal-row-label {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: var(--card);
+    border-radius: 8px;
+    gap: 8px;
+  }
+
+  .cal-row-label .icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+  }
+
+  .cal-cell {
+    position: relative;
+    background: var(--card);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .cal-cell:hover:not(.disabled):not(.na) {
+    border-color: var(--accent);
+    background: var(--card-hover);
+  }
+
+  .cal-cell.checked {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+
+  .cal-cell.checked .check-icon {
+    color: var(--success);
+    font-size: 1.1rem;
+  }
+
+  .cal-cell.failed {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .cal-cell.failed .check-icon {
+    color: var(--danger);
+    font-size: 1rem;
+  }
+
+  .cal-cell.na {
+    background: transparent;
+    cursor: default;
+    opacity: 0.15;
+  }
+
+  .cal-cell.disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+
+  .cal-cell.today-cell {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  .cal-date {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    position: absolute;
+    top: 3px;
+    right: 5px;
+  }
+
+  .check-icon {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* Rules Section */
+  .rules {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .rules h3 {
+    font-size: 1rem;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .rule-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .rule-icon {
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .stats-bar { grid-template-columns: 1fr; }
+    .milestones { grid-template-columns: 1fr; }
+    .calendar-grid { grid-template-columns: 100px repeat(7, 1fr); }
+    .cal-row-label { font-size: 0.7rem; padding: 6px 8px; }
+    .header h1 { font-size: 1.8rem; }
+  }
+
+  /* Reset button */
+  .reset-area {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  /* Streak */
+  .streak-info {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .streak-info strong {
+    color: var(--success);
+    font-size: 1.1rem;
+  }
+
+  /* Fail count */
+  .fail-info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+  }
+
+  .fail-item {
+    color: var(--text-dim);
+  }
+
+  .fail-item .num {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .fail-item .num.zero {
+    color: var(--success);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>66 DAYS CHALLENGE</h1>
+    <div class="subtitle">2026.04.15 ~ 2026.06.19 | 나를 바꾸는 66일</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-number" id="dayCount" style="color: var(--accent)">D-0</div>
+      <div class="stat-label">진행일</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="completionRate" style="color: var(--success)">0%</div>
+      <div class="stat-label">오늘 달성률</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="totalRate" style="color: var(--warning)">0%</div>
+      <div class="stat-label">전체 달성률</div>
+    </div>
+  </div>
+
+  <div class="milestones">
+    <div class="milestone m35">
+      <div class="milestone-header">
+        <div class="milestone-title">33일 챌린지</div>
+        <div class="milestone-badge" id="m35badge">진행중</div>
+      </div>
+      <div class="milestone-reward">힙스러스트 장비 세트 — 40만원</div>
+      <div class="milestone-remain" id="m35remain"></div>
+      <div class="milestone-progress-bar">
+        <div class="milestone-progress-fill" id="m35fill" style="width: 0%"></div>
+      </div>
+      <div class="milestone-days" id="m35days">0 / 33일</div>
+    </div>
+    <div class="milestone m66">
+      <div class="milestone-header">
+        <div class="milestone-title">66일 챌린지</div>
+        <div class="milestone-badge" id="m66badge">진행중</div>
+      </div>
+      <div class="milestone-reward">맥미니 M4 — 100만원</div>
+      <div class="milestone-remain" id="m66remain"></div>
+      <div class="milestone-progress-bar">
+        <div class="milestone-progress-fill" id="m66fill" style="width: 0%"></div>
+      </div>
+      <div class="milestone-days" id="m66days">0 / 66일</div>
+    </div>
+  </div>
+
+  <button class="today-btn" onclick="goToToday()">오늘로 이동</button>
+
+  <div class="week-nav">
+    <button onclick="prevWeek()" id="prevBtn">&larr; 이전 주</button>
+    <div class="week-label" id="weekLabel">Week 1 <span></span></div>
+    <button onclick="nextWeek()" id="nextBtn">다음 주 &rarr;</button>
+  </div>
+
+  <div id="calendarArea"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background: var(--success);"></div> 완료</div>
+    <div class="legend-item"><div class="legend-dot" style="background: var(--danger);"></div> 실패</div>
+    <div class="legend-item"><div class="legend-dot" style="background: var(--card); border: 1px solid var(--border);"></div> 미체크</div>
+    <div class="legend-item"><div class="legend-dot" style="background: rgba(255,255,255,0.05);"></div> 해당없음</div>
+  </div>
+
+  <div class="fail-info" id="failInfo"></div>
+
+  <div class="rules">
+    <h3>챌린지 규칙</h3>
+    <div class="rule-item"><span class="rule-icon">🌙</span><span><strong>수면</strong> — 새벽 1시 전 눈감기 (월~목)</span></div>
+    <div class="rule-item"><span class="rule-icon">💪</span><span><strong>운동</strong> — 하루 30분 이상 (주 5일, 요일 자유)</span></div>
+    <div class="rule-item"><span class="rule-icon">☕</span><span><strong>커피</strong> — 하루 2잔 이하 (매일)</span></div>
+    <div class="rule-item"><span class="rule-icon">🍜</span><span><strong>야식</strong> — 배달/인스턴트 안 먹기 (주말 하루만 허용)</span></div>
+    <div class="rule-item"><span class="rule-icon">💻</span><span><strong>개발</strong> — 개인 프로젝트 코딩 (월~목, 일 중 1일 이상)</span></div>
+    <hr style="border-color: var(--border); margin: 14px 0;">
+    <div class="rule-item"><span class="rule-icon">🏆</span><span><strong>33일 달성</strong> → 힙스러스트 장비 세트 (바벨+받침대+원판) 40만원</span></div>
+    <div class="rule-item"><span class="rule-icon">🎯</span><span><strong>66일 달성</strong> → 맥미니 M4 100만원</span></div>
+  </div>
+
+  <div class="reset-area">
+    <button class="reset-btn" onclick="resetAll()">데이터 초기화</button>
+  </div>
+
+  <div class="footer">Keep going. 66일 뒤의 나는 지금과 다르다.</div>
+</div>
+
+<script>
+const START_DATE = new Date(2026, 3, 15); // April 15, 2026
+const TOTAL_DAYS = 66;
+const STORAGE_KEY = 'challenge66_data';
+
+// Habit definitions
+const HABITS = [
+  { id: 'sleep',    label: '수면',  icon: '🌙', activeDays: [1,2,3,4] },         // Mon-Thu
+  { id: 'exercise', label: '운동',  icon: '💪', activeDays: [0,1,2,3,4,5,6] },   // Any day, 5/week
+  { id: 'coffee',   label: '커피',  icon: '☕', activeDays: [0,1,2,3,4,5,6] },   // Every day
+  { id: 'nosnack',  label: '야식',  icon: '🍜', activeDays: [0,1,2,3,4,5,6] },   // Every day (1 weekend cheat)
+  { id: 'dev',      label: '개발',  icon: '💻', activeDays: [0,1,2,3,4] },        // Mon-Thu, Sun (1/week)
+];
+
+let currentWeek = 0;
+let data = loadData();
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch { return {}; }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function dateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getDayNumber(date) {
+  const diff = Math.floor((date - START_DATE) / 86400000);
+  return diff + 1;
+}
+
+function getDateFromDayNum(dayNum) {
+  const d = new Date(START_DATE);
+  d.setDate(d.getDate() + dayNum - 1);
+  return d;
+}
+
+function today() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function isActive(habit, date) {
+  const dow = date.getDay(); // 0=Sun
+  if (habit.id === 'dev') {
+    return [0,1,2,3,4].includes(dow); // Sun,Mon,Tue,Wed,Thu
+  }
+  return habit.activeDays.includes(dow);
+}
+
+function toggleCell(habitId, dateStr, date) {
+  const t = today();
+  const dayNum = getDayNumber(date);
+  if (dayNum < 1 || dayNum > TOTAL_DAYS) return;
+  if (date > t) return;
+
+  const key = `${habitId}_${dateStr}`;
+  if (!data[key] || data[key] === 'none') {
+    data[key] = 'checked';
+  } else if (data[key] === 'checked') {
+    data[key] = 'failed';
+  } else {
+    data[key] = 'none';
+  }
+  saveData();
+  render();
+}
+
+function getWeekDates(weekIndex) {
+  const dates = [];
+  const baseDay = weekIndex * 7;
+  for (let i = 0; i < 7; i++) {
+    const dayNum = baseDay + i + 1;
+    if (dayNum > TOTAL_DAYS) {
+      dates.push(null);
+    } else {
+      dates.push(getDateFromDayNum(dayNum));
+    }
+  }
+  return dates;
+}
+
+function render() {
+  const t = today();
+  const todayDayNum = getDayNumber(t);
+
+  // Stats
+  const dayCount = Math.max(0, Math.min(todayDayNum, TOTAL_DAYS));
+  document.getElementById('dayCount').textContent = dayCount > 0 ? `D+${dayCount}` : 'D-0';
+
+  // Today completion
+  if (dayCount > 0 && dayCount <= TOTAL_DAYS) {
+    const dk = dateKey(t);
+    let todayTotal = 0, todayDone = 0;
+    HABITS.forEach(h => {
+      if (isActive(h, t)) {
+        todayTotal++;
+        if (data[`${h.id}_${dk}`] === 'checked') todayDone++;
+      }
+    });
+    document.getElementById('completionRate').textContent = todayTotal > 0 ? Math.round(todayDone / todayTotal * 100) + '%' : '-';
+  } else {
+    document.getElementById('completionRate').textContent = dayCount <= 0 ? '시작전' : '완료';
+  }
+
+  // Total rate
+  let totalChecks = 0, totalPossible = 0, totalFails = 0;
+  for (let d = 1; d <= Math.min(dayCount, TOTAL_DAYS); d++) {
+    const dt = getDateFromDayNum(d);
+    const dk = dateKey(dt);
+    HABITS.forEach(h => {
+      if (isActive(h, dt)) {
+        totalPossible++;
+        const val = data[`${h.id}_${dk}`];
+        if (val === 'checked') totalChecks++;
+        if (val === 'failed') totalFails++;
+      }
+    });
+  }
+  document.getElementById('totalRate').textContent = totalPossible > 0 ? Math.round(totalChecks / totalPossible * 100) + '%' : '0%';
+
+  // Fail info
+  let failsByHabit = {};
+  HABITS.forEach(h => failsByHabit[h.id] = 0);
+  for (let d = 1; d <= Math.min(dayCount, TOTAL_DAYS); d++) {
+    const dt = getDateFromDayNum(d);
+    const dk = dateKey(dt);
+    HABITS.forEach(h => {
+      if (isActive(h, dt) && data[`${h.id}_${dk}`] === 'failed') {
+        failsByHabit[h.id]++;
+      }
+    });
+  }
+  document.getElementById('failInfo').innerHTML = HABITS.map(h => {
+    const n = failsByHabit[h.id];
+    return `<div class="fail-item">${h.icon} <span class="num ${n === 0 ? 'zero' : ''}">${n}</span> 실패</div>`;
+  }).join('');
+
+  // Milestones
+  const MILESTONE_1 = 33;
+  const passedDays33 = Math.min(dayCount, MILESTONE_1);
+  const passedDays66 = Math.min(dayCount, 66);
+  document.getElementById('m35fill').style.width = (passedDays33 / MILESTONE_1 * 100) + '%';
+  document.getElementById('m66fill').style.width = (passedDays66 / 66 * 100) + '%';
+  document.getElementById('m35days').textContent = `${passedDays33} / ${MILESTONE_1}일`;
+  document.getElementById('m66days').textContent = `${passedDays66} / 66일`;
+
+  // Remaining days
+  const remain33 = Math.max(0, MILESTONE_1 - dayCount);
+  const remain66 = Math.max(0, 66 - dayCount);
+  if (remain33 > 0) {
+    document.getElementById('m35remain').textContent = `D-${remain33}`;
+  } else {
+    document.getElementById('m35remain').textContent = '완료!';
+  }
+  if (remain66 > 0) {
+    document.getElementById('m66remain').textContent = `D-${remain66}`;
+  } else {
+    document.getElementById('m66remain').textContent = '완료!';
+  }
+
+  if (passedDays33 >= MILESTONE_1) {
+    document.getElementById('m35badge').textContent = '달성!';
+    document.getElementById('m35badge').style.background = 'rgba(34,197,94,0.15)';
+    document.getElementById('m35badge').style.color = 'var(--success)';
+  }
+  if (passedDays66 >= 66) {
+    document.getElementById('m66badge').textContent = '달성!';
+    document.getElementById('m66badge').style.background = 'rgba(34,197,94,0.15)';
+    document.getElementById('m66badge').style.color = 'var(--success)';
+  }
+
+  // Calendar
+  const dates = getWeekDates(currentWeek);
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const maxWeek = Math.ceil(TOTAL_DAYS / 7) - 1;
+
+  document.getElementById('prevBtn').disabled = currentWeek <= 0;
+  document.getElementById('nextBtn').disabled = currentWeek >= maxWeek;
+
+  const weekStart = dates[0];
+  const weekEnd = dates.filter(Boolean).pop();
+  const ws = weekStart ? `${weekStart.getMonth()+1}/${weekStart.getDate()}` : '';
+  const we = weekEnd ? `${weekEnd.getMonth()+1}/${weekEnd.getDate()}` : '';
+  document.getElementById('weekLabel').innerHTML = `Week ${currentWeek + 1} <span>${ws} ~ ${we}</span>`;
+
+  let html = '<div class="calendar-grid">';
+
+  // Header row
+  html += '<div class="cal-header"></div>';
+  dates.forEach((d, i) => {
+    if (!d) {
+      html += '<div class="cal-header"></div>';
+      return;
+    }
+    const isToday = dateKey(d) === dateKey(t);
+    const dow = d.getDay();
+    html += `<div class="cal-header ${isToday ? 'today-col' : ''}">${dayNames[dow]}<br>${d.getDate()}</div>`;
+  });
+
+  // Habit rows
+  HABITS.forEach(habit => {
+    html += `<div class="cal-row-label"><span class="icon">${habit.icon}</span>${habit.label}</div>`;
+    dates.forEach(d => {
+      if (!d) {
+        html += '<div class="cal-cell disabled"></div>';
+        return;
+      }
+      const dk = dateKey(d);
+      const dayNum = getDayNumber(d);
+      const active = isActive(habit, d);
+      const isToday = dateKey(d) === dateKey(t);
+      const isFuture = d > t;
+      const key = `${habit.id}_${dk}`;
+      const val = data[key];
+
+      if (!active) {
+        html += `<div class="cal-cell na"><span class="cal-date">${d.getDate()}</span></div>`;
+        return;
+      }
+
+      if (isFuture) {
+        html += `<div class="cal-cell disabled ${isToday ? 'today-cell' : ''}"><span class="cal-date">${d.getDate()}</span></div>`;
+        return;
+      }
+
+      let cls = isToday ? 'today-cell' : '';
+      let icon = '';
+      if (val === 'checked') { cls += ' checked'; icon = '✓'; }
+      else if (val === 'failed') { cls += ' failed'; icon = '✗'; }
+
+      html += `<div class="cal-cell ${cls}" onclick="toggleCell('${habit.id}','${dk}',new Date(${d.getFullYear()},${d.getMonth()},${d.getDate()}))">`;
+      html += `<span class="cal-date">${d.getDate()}</span>`;
+      html += `<span class="check-icon">${icon}</span>`;
+      html += '</div>';
+    });
+  });
+
+  html += '</div>';
+  document.getElementById('calendarArea').innerHTML = html;
+}
+
+function prevWeek() {
+  if (currentWeek > 0) { currentWeek--; render(); }
+}
+
+function nextWeek() {
+  const maxWeek = Math.ceil(TOTAL_DAYS / 7) - 1;
+  if (currentWeek < maxWeek) { currentWeek++; render(); }
+}
+
+function goToToday() {
+  const t = today();
+  const dayNum = getDayNumber(t);
+  if (dayNum < 1) { currentWeek = 0; }
+  else if (dayNum > TOTAL_DAYS) { currentWeek = Math.ceil(TOTAL_DAYS / 7) - 1; }
+  else { currentWeek = Math.floor((dayNum - 1) / 7); }
+  render();
+}
+
+function resetAll() {
+  if (confirm('정말 모든 데이터를 초기화하시겠습니까?')) {
+    data = {};
+    saveData();
+    render();
+  }
+}
+
+// Init
+goToToday();
+</script>
+</body>
+</html>

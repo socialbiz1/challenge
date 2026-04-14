@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth:*)",
+      "Bash(where gh:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI:/c/Program Files \\(x86\\)/GitHub CLI:/c/Users/NHN/AppData/Local/GitHub CLI\")",
+      "Read(//c/Users/NHN/**)",
+      "Read(//c/Program Files/**)",
+      "Bash(cmd.exe /c \"where gh\")",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(gh --version)"
+    ]
+  }
+}
