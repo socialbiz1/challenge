@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>66 Days Challenge</title>
+<title>33/66/99 Days Challenge</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
@@ -148,7 +148,7 @@
   /* Milestones */
   .milestones {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
     margin-bottom: 30px;
   }
@@ -177,6 +177,10 @@
 
   .milestone.m66::before {
     background: linear-gradient(90deg, var(--accent), #c084fc);
+  }
+
+  .milestone.m99::before {
+    background: linear-gradient(90deg, #ec4899, #f472b6);
   }
 
   .milestone-header {
@@ -208,6 +212,11 @@
     color: var(--accent);
   }
 
+  .m99 .milestone-badge {
+    background: rgba(236, 72, 153, 0.15);
+    color: #ec4899;
+  }
+
   .milestone-reward {
     font-size: 0.85rem;
     color: var(--text-dim);
@@ -222,6 +231,7 @@
 
   .m35 .milestone-remain { color: var(--warning); }
   .m66 .milestone-remain { color: var(--accent); }
+  .m99 .milestone-remain { color: #ec4899; }
 
   .milestone-progress-bar {
     height: 6px;
@@ -242,6 +252,10 @@
 
   .m66 .milestone-progress-fill {
     background: linear-gradient(90deg, var(--accent), #c084fc);
+  }
+
+  .m99 .milestone-progress-fill {
+    background: linear-gradient(90deg, #ec4899, #f472b6);
   }
 
   .milestone-days {
@@ -639,7 +653,7 @@
   /* Responsive */
   @media (max-width: 700px) {
     .stats-bar { grid-template-columns: 1fr; }
-    .milestones { grid-template-columns: 1fr; }
+    .milestones { grid-template-columns: 1fr !important; }
     .calendar-grid { grid-template-columns: 100px repeat(7, 1fr); }
     .cal-row-label { font-size: 0.7rem; padding: 6px 8px; }
     .header h1 { font-size: 1.8rem; }
@@ -650,8 +664,8 @@
 
 <div class="container">
   <div class="header">
-    <h1>66 DAYS CHALLENGE</h1>
-    <div class="subtitle">2026.04.15 ~ 2026.06.19 | 나를 바꾸는 66일</div>
+    <h1>33/66/99 DAYS CHALLENGE</h1>
+    <div class="subtitle">2026.04.15 ~ 2026.07.22 | 나를 바꾸는 99일</div>
   </div>
 
   <div class="sync-bar">
@@ -703,6 +717,18 @@
       </div>
       <div class="milestone-days" id="m66days">0 / 66일</div>
     </div>
+    <div class="milestone m99">
+      <div class="milestone-header">
+        <div class="milestone-title">99일 챌린지</div>
+        <div class="milestone-badge" id="m99badge">진행중</div>
+      </div>
+      <div class="milestone-reward">울쎄라 관리 — 200만원</div>
+      <div class="milestone-remain" id="m99remain"></div>
+      <div class="milestone-progress-bar">
+        <div class="milestone-progress-fill" id="m99fill" style="width: 0%"></div>
+      </div>
+      <div class="milestone-days" id="m99days">0 / 99일</div>
+    </div>
   </div>
 
   <button class="today-btn" onclick="goToToday()">오늘로 이동</button>
@@ -734,13 +760,14 @@
     <hr style="border-color: var(--border); margin: 14px 0;">
     <div class="rule-item"><span class="rule-icon">🏆</span><span><strong>33일 달성</strong> → 힙스러스트 장비 세트 (바벨+받침대+원판) 40만원</span></div>
     <div class="rule-item"><span class="rule-icon">🎯</span><span><strong>66일 달성</strong> → 맥미니 M4 100만원</span></div>
+    <div class="rule-item"><span class="rule-icon">👑</span><span><strong>99일 달성</strong> → 울쎄라 관리 200만원</span></div>
   </div>
 
   <div class="reset-area">
     <button class="reset-btn" onclick="resetAll()">데이터 초기화</button>
   </div>
 
-  <div class="footer">Keep going. 66일 뒤의 나는 지금과 다르다.</div>
+  <div class="footer">Keep going. 99일 뒤의 나는 지금과 다르다.</div>
 </div>
 
 <!-- Settings Modal -->
@@ -764,7 +791,7 @@
 
 <script>
 const START_DATE = new Date(2026, 3, 15); // April 15, 2026
-const TOTAL_DAYS = 66;
+const TOTAL_DAYS = 99;
 const STORAGE_KEY = 'challenge66_data';
 const TOKEN_KEY = 'challenge66_gh_token';
 const GITHUB_REPO = 'socialbiz1/challenge';
@@ -1078,15 +1105,20 @@ function render() {
   const MILESTONE_1 = 33;
   const passedDays33 = Math.min(dayCount, MILESTONE_1);
   const passedDays66 = Math.min(dayCount, 66);
+  const passedDays99 = Math.min(dayCount, 99);
   document.getElementById('m35fill').style.width = (passedDays33 / MILESTONE_1 * 100) + '%';
   document.getElementById('m66fill').style.width = (passedDays66 / 66 * 100) + '%';
+  document.getElementById('m99fill').style.width = (passedDays99 / 99 * 100) + '%';
   document.getElementById('m35days').textContent = `${passedDays33} / ${MILESTONE_1}일`;
   document.getElementById('m66days').textContent = `${passedDays66} / 66일`;
+  document.getElementById('m99days').textContent = `${passedDays99} / 99일`;
 
   const remain33 = Math.max(0, MILESTONE_1 - dayCount);
   const remain66 = Math.max(0, 66 - dayCount);
+  const remain99 = Math.max(0, 99 - dayCount);
   document.getElementById('m35remain').textContent = remain33 > 0 ? `D-${remain33}` : '완료!';
   document.getElementById('m66remain').textContent = remain66 > 0 ? `D-${remain66}` : '완료!';
+  document.getElementById('m99remain').textContent = remain99 > 0 ? `D-${remain99}` : '완료!';
 
   if (passedDays33 >= MILESTONE_1) {
     document.getElementById('m35badge').textContent = '달성!';
@@ -1097,6 +1129,11 @@ function render() {
     document.getElementById('m66badge').textContent = '달성!';
     document.getElementById('m66badge').style.background = 'rgba(34,197,94,0.15)';
     document.getElementById('m66badge').style.color = 'var(--success)';
+  }
+  if (passedDays99 >= 99) {
+    document.getElementById('m99badge').textContent = '달성!';
+    document.getElementById('m99badge').style.background = 'rgba(34,197,94,0.15)';
+    document.getElementById('m99badge').style.color = 'var(--success)';
   }
 
   // Calendar
