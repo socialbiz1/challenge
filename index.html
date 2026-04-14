@@ -778,6 +778,69 @@
     color: var(--danger);
   }
 
+  /* Notification toggle */
+  .notif-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notif-label {
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+
+  .notif-label small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-top: 2px;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--border);
+    border-radius: 12px;
+    transition: all 0.3s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background: var(--accent);
+  }
+
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+  }
+
   /* Responsive */
   @media (max-width: 700px) {
     .stats-bar { grid-template-columns: 1fr; }
@@ -934,6 +997,16 @@
       Repository access: <strong>socialbiz1/challenge</strong> 선택 →
       Permissions: <strong>Contents (Read and write)</strong> 체크
     </p>
+    <div class="notif-toggle">
+      <div class="notif-label">
+        매일 오전 10시 알림
+        <small id="notifStatus">비활성</small>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notifToggle" onchange="toggleNotification()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
     <div class="token-status" id="tokenStatus"></div>
     <input type="password" id="tokenInput" placeholder="ghp_xxxx... 또는 github_pat_xxxx...">
     <div class="modal-actions">
@@ -1415,8 +1488,102 @@ document.getElementById('settingsModal').addEventListener('click', function(e) {
   if (e.target === this) closeSettings();
 });
 
+// ─── Notifications ───
+const NOTIF_KEY = 'challenge66_notif';
+const NOTIF_SENT_KEY = 'challenge66_notif_sent';
+let swRegistration = null;
+
+async function registerSW() {
+  if ('serviceWorker' in navigator) {
+    try {
+      swRegistration = await navigator.serviceWorker.register('./sw.js');
+    } catch (e) { console.log('SW registration failed:', e); }
+  }
+}
+
+async function toggleNotification() {
+  const toggle = document.getElementById('notifToggle');
+  if (toggle.checked) {
+    if (!('Notification' in window)) {
+      alert('이 브라우저는 알림을 지원하지 않습니다.');
+      toggle.checked = false;
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      alert('알림 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.');
+      toggle.checked = false;
+      return;
+    }
+    localStorage.setItem(NOTIF_KEY, 'on');
+    updateNotifStatus();
+  } else {
+    localStorage.setItem(NOTIF_KEY, 'off');
+    updateNotifStatus();
+  }
+}
+
+function updateNotifStatus() {
+  const on = localStorage.getItem(NOTIF_KEY) === 'on';
+  const toggle = document.getElementById('notifToggle');
+  const status = document.getElementById('notifStatus');
+  toggle.checked = on;
+  if (on && Notification.permission === 'granted') {
+    status.textContent = '활성 — 매일 오전 10시';
+    status.style.color = 'var(--success)';
+  } else {
+    status.textContent = '비활성';
+    status.style.color = 'var(--text-muted)';
+  }
+}
+
+function checkAndNotify() {
+  if (localStorage.getItem(NOTIF_KEY) !== 'on') return;
+  if (Notification.permission !== 'granted') return;
+
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const todayStr = dateKey(now);
+  const sentToday = localStorage.getItem(NOTIF_SENT_KEY);
+
+  // Fire at 10:00~10:05
+  if (hour === 10 && minute < 5 && sentToday !== todayStr) {
+    localStorage.setItem(NOTIF_SENT_KEY, todayStr);
+
+    const dayNum = getDayNumber(today());
+    const remain99 = Math.max(0, 99 - dayNum);
+    let body = '';
+    if (dayNum < 1) {
+      body = '내일부터 챌린지 시작! 준비되셨나요?';
+    } else if (dayNum <= 99) {
+      body = `D+${dayNum} | 남은 일수: ${remain99}일\n오늘도 습관 체크하러 가볼까요?`;
+    } else {
+      body = '99일 챌린지 완료! 축하합니다!';
+    }
+
+    if (swRegistration) {
+      swRegistration.showNotification('33/66/99 DAYS CHALLENGE', {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔥</text></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✅</text></svg>',
+        tag: 'daily-challenge',
+        renotify: true,
+      });
+    } else {
+      new Notification('33/66/99 DAYS CHALLENGE', { body });
+    }
+  }
+}
+
+// Check every 30 seconds
+setInterval(checkAndNotify, 30000);
+
 // ─── Init ───
 async function init() {
+  await registerSW();
+  updateNotifStatus();
+  checkAndNotify();
   goToToday();
 
   const token = getToken();
