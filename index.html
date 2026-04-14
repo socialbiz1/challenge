@@ -483,6 +483,134 @@
     margin-top: 2px;
   }
 
+  /* Bonus Mission */
+  .bonus-mission {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bonus-mission::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f59e0b, #ec4899, #7c5cfc);
+  }
+
+  .bonus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .bonus-title {
+    font-weight: 900;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bonus-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+  }
+
+  .bonus-reward {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+
+  .bonus-checklist {
+    list-style: none;
+    padding: 0;
+  }
+
+  .bonus-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .bonus-checklist li:last-child {
+    border-bottom: none;
+  }
+
+  .bonus-checklist li .b-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    margin-top: 1px;
+    transition: all 0.2s;
+  }
+
+  .bonus-checklist li.done .b-check {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .bonus-checklist li.done {
+    color: var(--success);
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  .bonus-progress {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bonus-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #1e1e2e;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bonus-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #f59e0b, #ec4899);
+    transition: width 0.5s ease;
+  }
+
+  .bonus-progress-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -698,7 +826,7 @@
         <div class="milestone-title">33일 챌린지</div>
         <div class="milestone-badge" id="m35badge">진행중</div>
       </div>
-      <div class="milestone-reward">힙스러스트 장비 세트 — 40만원</div>
+      <div class="milestone-reward">옷 쇼핑 — 30만원</div>
       <div class="milestone-remain" id="m35remain"></div>
       <div class="milestone-progress-bar">
         <div class="milestone-progress-fill" id="m35fill" style="width: 0%"></div>
@@ -731,6 +859,31 @@
     </div>
   </div>
 
+  <!-- Bonus Mission -->
+  <div class="bonus-mission">
+    <div class="bonus-header">
+      <div class="bonus-title">BONUS MISSION</div>
+      <div class="bonus-badge" id="bonusBadge">진행중</div>
+    </div>
+    <div class="bonus-reward">홈트 장비 세트 (힙스러스트+바벨+원판) — 40만원</div>
+    <ul class="bonus-checklist" id="bonusChecklist">
+      <li data-id="svc1" onclick="toggleBonus('svc1')"><span class="b-check"></span>서비스 1 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc2" onclick="toggleBonus('svc2')"><span class="b-check"></span>서비스 2 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc3" onclick="toggleBonus('svc3')"><span class="b-check"></span>서비스 3 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc4" onclick="toggleBonus('svc4')"><span class="b-check"></span>서비스 4 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc5" onclick="toggleBonus('svc5')"><span class="b-check"></span>서비스 5 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc6" onclick="toggleBonus('svc6')"><span class="b-check"></span>서비스 6 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc7" onclick="toggleBonus('svc7')"><span class="b-check"></span>서비스 7 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc8" onclick="toggleBonus('svc8')"><span class="b-check"></span>서비스 8 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc9" onclick="toggleBonus('svc9')"><span class="b-check"></span>서비스 9 — 결제 + SEO + AI 에이전트</li>
+      <li data-id="svc10" onclick="toggleBonus('svc10')"><span class="b-check"></span>서비스 10 — 결제 + SEO + AI 에이전트</li>
+    </ul>
+    <div class="bonus-progress">
+      <div class="bonus-progress-bar"><div class="bonus-progress-fill" id="bonusFill" style="width:0%"></div></div>
+      <div class="bonus-progress-text" id="bonusCount">0 / 10</div>
+    </div>
+  </div>
+
   <button class="today-btn" onclick="goToToday()">오늘로 이동</button>
 
   <div class="week-nav">
@@ -758,9 +911,11 @@
     <div class="rule-item"><span class="rule-icon">🍜</span><span><strong>야식</strong> — 배달/인스턴트 안 먹기 (주말 하루만 허용)</span></div>
     <div class="rule-item"><span class="rule-icon">💻</span><span><strong>개발</strong> — 개인 프로젝트 코딩 (월~목, 일 중 1일 이상)</span></div>
     <hr style="border-color: var(--border); margin: 14px 0;">
-    <div class="rule-item"><span class="rule-icon">🏆</span><span><strong>33일 달성</strong> → 힙스러스트 장비 세트 (바벨+받침대+원판) 40만원</span></div>
+    <div class="rule-item"><span class="rule-icon">🏆</span><span><strong>33일 달성</strong> → 옷 쇼핑 30만원</span></div>
     <div class="rule-item"><span class="rule-icon">🎯</span><span><strong>66일 달성</strong> → 맥미니 M4 100만원</span></div>
     <div class="rule-item"><span class="rule-icon">👑</span><span><strong>99일 달성</strong> → 울쎄라 관리 200만원</span></div>
+    <hr style="border-color: var(--border); margin: 14px 0;">
+    <div class="rule-item"><span class="rule-icon">🚀</span><span><strong>보너스</strong> — 바이브코딩으로 서비스 10개 완성 (결제+SEO+AI에이전트) → 홈트 장비 40만원</span></div>
   </div>
 
   <div class="reset-area">
@@ -1192,6 +1347,7 @@ function render() {
 
   html += '</div>';
   document.getElementById('calendarArea').innerHTML = html;
+  renderBonus();
 }
 
 function prevWeek() { if (currentWeek > 0) { currentWeek--; render(); } }
@@ -1215,6 +1371,42 @@ function resetAll() {
     saveData();
     render();
     pushToGitHub();
+  }
+}
+
+// ─── Bonus Mission ───
+function toggleBonus(id) {
+  const key = `bonus_${id}`;
+  data[key] = data[key] ? false : true;
+  saveData();
+  renderBonus();
+  debouncedSync();
+}
+
+function renderBonus() {
+  const items = document.querySelectorAll('#bonusChecklist li');
+  let done = 0;
+  items.forEach(li => {
+    const id = li.getAttribute('data-id');
+    if (data[`bonus_${id}`]) {
+      li.classList.add('done');
+      li.querySelector('.b-check').textContent = '✓';
+      done++;
+    } else {
+      li.classList.remove('done');
+      li.querySelector('.b-check').textContent = '';
+    }
+  });
+  document.getElementById('bonusFill').style.width = (done / 10 * 100) + '%';
+  document.getElementById('bonusCount').textContent = `${done} / 10`;
+  if (done >= 10) {
+    document.getElementById('bonusBadge').textContent = '달성!';
+    document.getElementById('bonusBadge').style.background = 'rgba(34,197,94,0.15)';
+    document.getElementById('bonusBadge').style.color = 'var(--success)';
+  } else {
+    document.getElementById('bonusBadge').textContent = '진행중';
+    document.getElementById('bonusBadge').style.background = 'rgba(245, 158, 11, 0.15)';
+    document.getElementById('bonusBadge').style.color = 'var(--warning)';
   }
 }
 
