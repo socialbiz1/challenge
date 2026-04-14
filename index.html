@@ -41,7 +41,8 @@
   /* Header */
   .header {
     text-align: center;
-    padding: 40px 0 30px;
+    padding: 40px 0 10px;
+    position: relative;
   }
 
   .header h1 {
@@ -58,6 +59,56 @@
     color: var(--text-dim);
     font-size: 0.95rem;
     font-weight: 300;
+  }
+
+  /* Sync bar */
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 16px 0 24px;
+  }
+
+  .sync-status {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .sync-dot.connected { background: var(--success); }
+  .sync-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--danger); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .sync-btn, .settings-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .sync-btn:hover, .settings-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
   }
 
   /* Stats Bar */
@@ -160,8 +211,17 @@
   .milestone-reward {
     font-size: 0.85rem;
     color: var(--text-dim);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
+
+  .milestone-remain {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .m35 .milestone-remain { color: var(--warning); }
+  .m66 .milestone-remain { color: var(--accent); }
 
   .milestone-progress-bar {
     height: 6px;
@@ -183,15 +243,6 @@
   .m66 .milestone-progress-fill {
     background: linear-gradient(90deg, var(--accent), #c084fc);
   }
-
-  .milestone-remain {
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-
-  .m35 .milestone-remain { color: var(--warning); }
-  .m66 .milestone-remain { color: var(--accent); }
 
   .milestone-days {
     font-size: 0.75rem;
@@ -426,15 +477,6 @@
     font-size: 0.75rem;
   }
 
-  /* Responsive */
-  @media (max-width: 700px) {
-    .stats-bar { grid-template-columns: 1fr; }
-    .milestones { grid-template-columns: 1fr; }
-    .calendar-grid { grid-template-columns: 100px repeat(7, 1fr); }
-    .cal-row-label { font-size: 0.7rem; padding: 6px 8px; }
-    .header h1 { font-size: 1.8rem; }
-  }
-
   /* Reset button */
   .reset-area {
     text-align: center;
@@ -459,19 +501,6 @@
     color: var(--danger);
   }
 
-  /* Streak */
-  .streak-info {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-  }
-
-  .streak-info strong {
-    color: var(--success);
-    font-size: 1.1rem;
-  }
-
   /* Fail count */
   .fail-info {
     display: flex;
@@ -493,6 +522,128 @@
   .fail-item .num.zero {
     color: var(--success);
   }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 90%;
+    max-width: 440px;
+  }
+
+  .modal h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .modal p {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    outline: none;
+  }
+
+  .modal input:focus {
+    border-color: var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .modal-actions button {
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel {
+    background: var(--bg);
+    color: var(--text-dim);
+    border: 1px solid var(--border) !important;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--accent), #9b7cfc);
+    color: white;
+    font-weight: 500;
+  }
+
+  .btn-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px var(--accent-glow);
+  }
+
+  .modal a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .modal a:hover {
+    text-decoration: underline;
+  }
+
+  .token-status {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .token-status.connected {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success);
+  }
+
+  .token-status.disconnected {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--danger);
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .stats-bar { grid-template-columns: 1fr; }
+    .milestones { grid-template-columns: 1fr; }
+    .calendar-grid { grid-template-columns: 100px repeat(7, 1fr); }
+    .cal-row-label { font-size: 0.7rem; padding: 6px 8px; }
+    .header h1 { font-size: 1.8rem; }
+  }
 </style>
 </head>
 <body>
@@ -501,6 +652,15 @@
   <div class="header">
     <h1>66 DAYS CHALLENGE</h1>
     <div class="subtitle">2026.04.15 ~ 2026.06.19 | 나를 바꾸는 66일</div>
+  </div>
+
+  <div class="sync-bar">
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncText">오프라인</span>
+    </div>
+    <button class="sync-btn" onclick="manualSync()">동기화</button>
+    <button class="settings-btn" onclick="openSettings()">설정</button>
   </div>
 
   <div class="stats-bar">
@@ -583,23 +743,47 @@
   <div class="footer">Keep going. 66일 뒤의 나는 지금과 다르다.</div>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h3>GitHub 동기화 설정</h3>
+    <p>다른 기기에서도 데이터를 공유하려면 GitHub Personal Access Token이 필요합니다.<br>
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">여기서 토큰 생성</a> →
+      Repository access: <strong>socialbiz1/challenge</strong> 선택 →
+      Permissions: <strong>Contents (Read and write)</strong> 체크
+    </p>
+    <div class="token-status" id="tokenStatus"></div>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxx... 또는 github_pat_xxxx...">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSettings()">닫기</button>
+      <button class="btn-cancel" onclick="removeToken()" style="color: var(--danger);">연결 해제</button>
+      <button class="btn-save" onclick="saveToken()">저장</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const START_DATE = new Date(2026, 3, 15); // April 15, 2026
 const TOTAL_DAYS = 66;
 const STORAGE_KEY = 'challenge66_data';
+const TOKEN_KEY = 'challenge66_gh_token';
+const GITHUB_REPO = 'socialbiz1/challenge';
+const DATA_FILE = 'data.json';
 
-// Habit definitions
 const HABITS = [
-  { id: 'sleep',    label: '수면',  icon: '🌙', activeDays: [1,2,3,4] },         // Mon-Thu
-  { id: 'exercise', label: '운동',  icon: '💪', activeDays: [0,1,2,3,4,5,6] },   // Any day, 5/week
-  { id: 'coffee',   label: '커피',  icon: '☕', activeDays: [0,1,2,3,4,5,6] },   // Every day
-  { id: 'nosnack',  label: '야식',  icon: '🍜', activeDays: [0,1,2,3,4,5,6] },   // Every day (1 weekend cheat)
-  { id: 'dev',      label: '개발',  icon: '💻', activeDays: [0,1,2,3,4] },        // Mon-Thu, Sun (1/week)
+  { id: 'sleep',    label: '수면',  icon: '🌙', activeDays: [1,2,3,4] },
+  { id: 'exercise', label: '운동',  icon: '💪', activeDays: [0,1,2,3,4,5,6] },
+  { id: 'coffee',   label: '커피',  icon: '☕', activeDays: [0,1,2,3,4,5,6] },
+  { id: 'nosnack',  label: '야식',  icon: '🍜', activeDays: [0,1,2,3,4,5,6] },
+  { id: 'dev',      label: '개발',  icon: '💻', activeDays: [0,1,2,3,4] },
 ];
 
 let currentWeek = 0;
 let data = loadData();
+let fileSha = null;
+let syncTimer = null;
 
+// ─── localStorage ───
 function loadData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -611,6 +795,170 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+// ─── GitHub Sync ───
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function setSyncStatus(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = text;
+}
+
+async function fetchFromGitHub() {
+  const token = getToken();
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+
+  try {
+    setSyncStatus('syncing', '동기화 중...');
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, { headers });
+
+    if (res.status === 404) {
+      setSyncStatus('connected', '연결됨 (새 데이터)');
+      return null;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    fileSha = json.sha;
+    const content = JSON.parse(atob(json.content));
+    setSyncStatus('connected', '동기화 완료');
+    return content;
+  } catch (e) {
+    console.error('Fetch error:', e);
+    setSyncStatus('error', '동기화 실패');
+    return null;
+  }
+}
+
+async function pushToGitHub() {
+  const token = getToken();
+  if (!token) {
+    setSyncStatus('error', '토큰 필요');
+    return false;
+  }
+
+  try {
+    setSyncStatus('syncing', '업로드 중...');
+
+    // Get latest SHA first
+    const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': 'token ' + token
+      }
+    });
+
+    let sha = null;
+    if (getRes.ok) {
+      const existing = await getRes.json();
+      sha = existing.sha;
+    }
+
+    const body = {
+      message: 'sync challenge data',
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || `HTTP ${putRes.status}`);
+    }
+
+    const result = await putRes.json();
+    fileSha = result.content.sha;
+    setSyncStatus('connected', '동기화 완료');
+    return true;
+  } catch (e) {
+    console.error('Push error:', e);
+    setSyncStatus('error', '업로드 실패');
+    return false;
+  }
+}
+
+function debouncedSync() {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => pushToGitHub(), 3000);
+}
+
+async function manualSync() {
+  const token = getToken();
+  if (!token) {
+    openSettings();
+    return;
+  }
+
+  const remote = await fetchFromGitHub();
+  if (remote) {
+    // Merge: remote wins for keys not in local, local wins for recent changes
+    const merged = { ...remote, ...data };
+    data = merged;
+    saveData();
+    render();
+  }
+  await pushToGitHub();
+}
+
+// ─── Settings ───
+function openSettings() {
+  const modal = document.getElementById('settingsModal');
+  const status = document.getElementById('tokenStatus');
+  const input = document.getElementById('tokenInput');
+  const token = getToken();
+
+  if (token) {
+    status.className = 'token-status connected';
+    status.textContent = '연결됨: ' + token.substring(0, 8) + '...';
+    input.value = '';
+    input.placeholder = '새 토큰으로 변경하려면 입력';
+  } else {
+    status.className = 'token-status disconnected';
+    status.textContent = '미연결: 토큰을 입력해주세요';
+    input.value = '';
+  }
+
+  modal.classList.add('active');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('active');
+}
+
+async function saveToken() {
+  const input = document.getElementById('tokenInput');
+  const token = input.value.trim();
+  if (!token) {
+    closeSettings();
+    return;
+  }
+
+  localStorage.setItem(TOKEN_KEY, token);
+  closeSettings();
+  await manualSync();
+}
+
+function removeToken() {
+  localStorage.removeItem(TOKEN_KEY);
+  fileSha = null;
+  setSyncStatus('', '오프라인');
+  closeSettings();
+}
+
+// ─── Core Logic ───
 function dateKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -635,9 +983,9 @@ function today() {
 }
 
 function isActive(habit, date) {
-  const dow = date.getDay(); // 0=Sun
+  const dow = date.getDay();
   if (habit.id === 'dev') {
-    return [0,1,2,3,4].includes(dow); // Sun,Mon,Tue,Wed,Thu
+    return [0,1,2,3,4].includes(dow);
   }
   return habit.activeDays.includes(dow);
 }
@@ -658,6 +1006,7 @@ function toggleCell(habitId, dateStr, date) {
   }
   saveData();
   render();
+  debouncedSync();
 }
 
 function getWeekDates(weekIndex) {
@@ -677,12 +1026,10 @@ function getWeekDates(weekIndex) {
 function render() {
   const t = today();
   const todayDayNum = getDayNumber(t);
-
-  // Stats
   const dayCount = Math.max(0, Math.min(todayDayNum, TOTAL_DAYS));
-  document.getElementById('dayCount').textContent = dayCount > 0 ? `D+${dayCount}` : 'D-0';
 
-  // Today completion
+  document.getElementById('dayCount').textContent = dayCount > 0 ? `D+${dayCount}` : (todayDayNum <= 0 ? `D${todayDayNum - 1}` : 'D-0');
+
   if (dayCount > 0 && dayCount <= TOTAL_DAYS) {
     const dk = dateKey(t);
     let todayTotal = 0, todayDone = 0;
@@ -697,17 +1044,14 @@ function render() {
     document.getElementById('completionRate').textContent = dayCount <= 0 ? '시작전' : '완료';
   }
 
-  // Total rate
-  let totalChecks = 0, totalPossible = 0, totalFails = 0;
+  let totalChecks = 0, totalPossible = 0;
   for (let d = 1; d <= Math.min(dayCount, TOTAL_DAYS); d++) {
     const dt = getDateFromDayNum(d);
     const dk = dateKey(dt);
     HABITS.forEach(h => {
       if (isActive(h, dt)) {
         totalPossible++;
-        const val = data[`${h.id}_${dk}`];
-        if (val === 'checked') totalChecks++;
-        if (val === 'failed') totalFails++;
+        if (data[`${h.id}_${dk}`] === 'checked') totalChecks++;
       }
     });
   }
@@ -739,19 +1083,10 @@ function render() {
   document.getElementById('m35days').textContent = `${passedDays33} / ${MILESTONE_1}일`;
   document.getElementById('m66days').textContent = `${passedDays66} / 66일`;
 
-  // Remaining days
   const remain33 = Math.max(0, MILESTONE_1 - dayCount);
   const remain66 = Math.max(0, 66 - dayCount);
-  if (remain33 > 0) {
-    document.getElementById('m35remain').textContent = `D-${remain33}`;
-  } else {
-    document.getElementById('m35remain').textContent = '완료!';
-  }
-  if (remain66 > 0) {
-    document.getElementById('m66remain').textContent = `D-${remain66}`;
-  } else {
-    document.getElementById('m66remain').textContent = '완료!';
-  }
+  document.getElementById('m35remain').textContent = remain33 > 0 ? `D-${remain33}` : '완료!';
+  document.getElementById('m66remain').textContent = remain66 > 0 ? `D-${remain66}` : '완료!';
 
   if (passedDays33 >= MILESTONE_1) {
     document.getElementById('m35badge').textContent = '달성!';
@@ -779,29 +1114,18 @@ function render() {
   document.getElementById('weekLabel').innerHTML = `Week ${currentWeek + 1} <span>${ws} ~ ${we}</span>`;
 
   let html = '<div class="calendar-grid">';
-
-  // Header row
   html += '<div class="cal-header"></div>';
-  dates.forEach((d, i) => {
-    if (!d) {
-      html += '<div class="cal-header"></div>';
-      return;
-    }
+  dates.forEach(d => {
+    if (!d) { html += '<div class="cal-header"></div>'; return; }
     const isToday = dateKey(d) === dateKey(t);
-    const dow = d.getDay();
-    html += `<div class="cal-header ${isToday ? 'today-col' : ''}">${dayNames[dow]}<br>${d.getDate()}</div>`;
+    html += `<div class="cal-header ${isToday ? 'today-col' : ''}">${dayNames[d.getDay()]}<br>${d.getDate()}</div>`;
   });
 
-  // Habit rows
   HABITS.forEach(habit => {
     html += `<div class="cal-row-label"><span class="icon">${habit.icon}</span>${habit.label}</div>`;
     dates.forEach(d => {
-      if (!d) {
-        html += '<div class="cal-cell disabled"></div>';
-        return;
-      }
+      if (!d) { html += '<div class="cal-cell disabled"></div>'; return; }
       const dk = dateKey(d);
-      const dayNum = getDayNumber(d);
       const active = isActive(habit, d);
       const isToday = dateKey(d) === dateKey(t);
       const isFuture = d > t;
@@ -812,7 +1136,6 @@ function render() {
         html += `<div class="cal-cell na"><span class="cal-date">${d.getDate()}</span></div>`;
         return;
       }
-
       if (isFuture) {
         html += `<div class="cal-cell disabled ${isToday ? 'today-cell' : ''}"><span class="cal-date">${d.getDate()}</span></div>`;
         return;
@@ -834,10 +1157,7 @@ function render() {
   document.getElementById('calendarArea').innerHTML = html;
 }
 
-function prevWeek() {
-  if (currentWeek > 0) { currentWeek--; render(); }
-}
-
+function prevWeek() { if (currentWeek > 0) { currentWeek--; render(); } }
 function nextWeek() {
   const maxWeek = Math.ceil(TOTAL_DAYS / 7) - 1;
   if (currentWeek < maxWeek) { currentWeek++; render(); }
@@ -846,22 +1166,51 @@ function nextWeek() {
 function goToToday() {
   const t = today();
   const dayNum = getDayNumber(t);
-  if (dayNum < 1) { currentWeek = 0; }
-  else if (dayNum > TOTAL_DAYS) { currentWeek = Math.ceil(TOTAL_DAYS / 7) - 1; }
-  else { currentWeek = Math.floor((dayNum - 1) / 7); }
+  if (dayNum < 1) currentWeek = 0;
+  else if (dayNum > TOTAL_DAYS) currentWeek = Math.ceil(TOTAL_DAYS / 7) - 1;
+  else currentWeek = Math.floor((dayNum - 1) / 7);
   render();
 }
 
 function resetAll() {
-  if (confirm('정말 모든 데이터를 초기화하시겠습니까?')) {
+  if (confirm('정말 모든 데이터를 초기화하시겠습니까?\n(GitHub 데이터도 함께 초기화됩니다)')) {
     data = {};
     saveData();
     render();
+    pushToGitHub();
   }
 }
 
-// Init
-goToToday();
+// Close modal on overlay click
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+// ─── Init ───
+async function init() {
+  goToToday();
+
+  const token = getToken();
+  if (token) {
+    const remote = await fetchFromGitHub();
+    if (remote) {
+      // Merge: remote as base, overlay with local only if local has value
+      const merged = { ...remote };
+      for (const key in data) {
+        if (data[key] && data[key] !== 'none') {
+          merged[key] = data[key];
+        }
+      }
+      data = merged;
+      saveData();
+      render();
+    }
+  } else {
+    setSyncStatus('', '오프라인');
+  }
+}
+
+init();
 </script>
 </body>
 </html>
