@@ -330,9 +330,45 @@
   /* Calendar Grid */
   .calendar-grid {
     display: grid;
-    grid-template-columns: 140px repeat(7, 1fr);
+    grid-template-columns: 140px repeat(7, 1fr) 70px;
     gap: 2px;
     margin-bottom: 30px;
+  }
+
+  .cal-week-rate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    background: var(--card);
+    border-radius: 8px;
+    font-size: 0.7rem;
+    gap: 2px;
+  }
+
+  .cal-week-rate .wr-num {
+    color: var(--text-dim);
+    font-size: 0.65rem;
+  }
+
+  .cal-week-rate .wr-pct {
+    font-weight: 700;
+    color: var(--warning);
+    font-size: 0.8rem;
+  }
+
+  .cal-week-rate .wr-pct.full {
+    color: var(--success);
+  }
+
+  .cal-week-rate .wr-pct.zero {
+    color: var(--text-muted);
+  }
+
+  .cal-header.week-col {
+    color: var(--accent);
+    font-weight: 700;
   }
 
   .cal-header {
@@ -845,7 +881,7 @@
   @media (max-width: 700px) {
     .stats-bar { grid-template-columns: 1fr; }
     .milestones { grid-template-columns: 1fr !important; }
-    .calendar-grid { grid-template-columns: 100px repeat(7, 1fr); }
+    .calendar-grid { grid-template-columns: 90px repeat(7, 1fr) 56px; }
     .cal-row-label { font-size: 0.7rem; padding: 6px 8px; }
     .header h1 { font-size: 1.8rem; }
   }
@@ -972,7 +1008,7 @@
     <div class="rule-item"><span class="rule-icon">💪</span><span><strong>운동</strong> — 하루 30분 이상 (주 5일, 요일 자유)</span></div>
     <div class="rule-item"><span class="rule-icon">☕</span><span><strong>커피</strong> — 하루 2잔 이하 (매일)</span></div>
     <div class="rule-item"><span class="rule-icon">🍜</span><span><strong>야식</strong> — 배달/인스턴트 안 먹기 (주말 하루만 허용)</span></div>
-    <div class="rule-item"><span class="rule-icon">💻</span><span><strong>개발</strong> — 개인 프로젝트 코딩 (월~목, 일 중 1일 이상)</span></div>
+    <div class="rule-item"><span class="rule-icon">💻</span><span><strong>개발</strong> — 개인 프로젝트 코딩 (주 5일: 월~목 + 주말 1일)</span></div>
     <hr style="border-color: var(--border); margin: 14px 0;">
     <div class="rule-item"><span class="rule-icon">🏆</span><span><strong>33일 달성</strong> → 맥미니 M4 구매</span></div>
     <div class="rule-item"><span class="rule-icon">🎯</span><span><strong>66일 달성</strong> → 옷쇼핑 + 홈트장비 100만원</span></div>
@@ -1026,11 +1062,12 @@ const GITHUB_REPO = 'socialbiz1/challenge';
 const DATA_FILE = 'data.json';
 
 const HABITS = [
-  { id: 'sleep',    label: '수면',  icon: '🌙', activeDays: [1,2,3,4] },
-  { id: 'exercise', label: '운동',  icon: '💪', activeDays: [0,1,2,3,4,5,6] },
-  { id: 'coffee',   label: '커피',  icon: '☕', activeDays: [0,1,2,3,4,5,6] },
-  { id: 'nosnack',  label: '야식',  icon: '🍜', activeDays: [0,1,2,3,4,5,6] },
-  { id: 'dev',      label: '개발',  icon: '💻', activeDays: [0,1,2,3,4] },
+  // flexTarget: weekly target (null = count of active days). sleep has no flexTarget so needs all Mon-Thu.
+  { id: 'sleep',    label: '수면',  icon: '🌙', activeDays: [1,2,3,4],         flexTarget: null },
+  { id: 'exercise', label: '운동',  icon: '💪', activeDays: [0,1,2,3,4,5,6],   flexTarget: 5 },
+  { id: 'coffee',   label: '커피',  icon: '☕', activeDays: [0,1,2,3,4,5,6],   flexTarget: 7 },
+  { id: 'nosnack',  label: '야식',  icon: '🍜', activeDays: [0,1,2,3,4,5,6],   flexTarget: 6 },
+  { id: 'dev',      label: '개발',  icon: '💻', activeDays: [0,1,2,3,4,5,6],   flexTarget: 5 },
 ];
 
 let currentWeek = 0;
@@ -1239,10 +1276,13 @@ function today() {
 
 function isActive(habit, date) {
   const dow = date.getDay();
-  if (habit.id === 'dev') {
-    return [0,1,2,3,4].includes(dow);
-  }
   return habit.activeDays.includes(dow);
+}
+
+function weeklyTargetFor(habit, weekDates) {
+  const activeInWeek = weekDates.filter(d => d && isActive(habit, d)).length;
+  if (habit.flexTarget != null) return Math.min(habit.flexTarget, activeInWeek);
+  return activeInWeek;
 }
 
 function toggleCell(habitId, dateStr, date) {
@@ -1385,6 +1425,9 @@ function render() {
     const isToday = dateKey(d) === dateKey(t);
     html += `<div class="cal-header ${isToday ? 'today-col' : ''}">${dayNames[d.getDay()]}<br>${d.getDate()}</div>`;
   });
+  html += '<div class="cal-header week-col">주간</div>';
+
+  const weekValidDates = dates.filter(Boolean);
 
   HABITS.forEach(habit => {
     html += `<div class="cal-row-label"><span class="icon">${habit.icon}</span>${habit.label}</div>`;
@@ -1416,6 +1459,18 @@ function render() {
       html += `<span class="check-icon">${icon}</span>`;
       html += '</div>';
     });
+
+    // Weekly rate cell
+    let weekDone = 0;
+    weekValidDates.forEach(d => {
+      if (!isActive(habit, d)) return;
+      const dk = dateKey(d);
+      if (data[`${habit.id}_${dk}`] === 'checked') weekDone++;
+    });
+    const target = weeklyTargetFor(habit, weekValidDates);
+    const pct = target > 0 ? Math.min(100, Math.round(weekDone / target * 100)) : 0;
+    const pctCls = pct >= 100 ? 'full' : (pct === 0 ? 'zero' : '');
+    html += `<div class="cal-week-rate"><div class="wr-num">${weekDone}/${target}</div><div class="wr-pct ${pctCls}">${pct}%</div></div>`;
   });
 
   html += '</div>';
