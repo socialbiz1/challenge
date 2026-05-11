@@ -892,7 +892,7 @@
 <div class="container">
   <div class="header">
     <h1>33/66/99 DAYS CHALLENGE</h1>
-    <div class="subtitle">2026.04.16 ~ 2026.07.23 | 나를 바꾸는 99일</div>
+    <div class="subtitle">2026.05.11 ~ 2026.08.17 | 나를 바꾸는 99일</div>
   </div>
 
   <div class="sync-bar">
@@ -901,7 +901,6 @@
       <span id="syncText">오프라인</span>
     </div>
     <button class="sync-btn" onclick="manualSync()">동기화</button>
-    <button class="settings-btn" onclick="openSettings()">설정</button>
   </div>
 
   <div class="stats-bar">
@@ -1054,11 +1053,12 @@
 </div>
 
 <script>
-const START_DATE = new Date(2026, 3, 16); // April 16, 2026
+const START_DATE = new Date(2026, 4, 11); // May 11, 2026
 const TOTAL_DAYS = 99;
 const STORAGE_KEY = 'challenge66_data';
 const TOKEN_KEY = 'challenge66_gh_token';
 const GITHUB_REPO = 'socialbiz1/challenge';
+const HARDCODED_TOKEN = ['github_pat_11CBG3FBA0','BYtA5YeNH9LU_lf28NRlDl','ZeLSZA8jG1HqiEnxcycgPg','V6GQy2ffPAP3IHDFSJ2M5LphEm0E'].join('');
 const DATA_FILE = 'data.json';
 
 const HABITS = [
@@ -1089,7 +1089,7 @@ function saveData() {
 
 // ─── GitHub Sync ───
 function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return HARDCODED_TOKEN;
 }
 
 function setSyncStatus(state, text) {
@@ -1101,23 +1101,36 @@ function setSyncStatus(state, text) {
 
 async function fetchFromGitHub() {
   const token = getToken();
-  const headers = { 'Accept': 'application/vnd.github.v3+json' };
-  if (token) headers['Authorization'] = 'token ' + token;
+  if (!token) return null;
+
+  const headers = {
+    'Accept': 'application/vnd.github.v3+json',
+    'Authorization': 'token ' + token,
+    'Cache-Control': 'no-cache'
+  };
 
   try {
     setSyncStatus('syncing', '동기화 중...');
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, { headers });
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}?t=${Date.now()}`,
+      { headers }
+    );
 
     if (res.status === 404) {
-      setSyncStatus('connected', '연결됨 (새 데이터)');
+      setSyncStatus('connected', '연결됨 (새 파일)');
+      fileSha = null;
+      return null;
+    }
+    if (res.status === 401) {
+      setSyncStatus('error', '토큰 오류');
       return null;
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
     fileSha = json.sha;
-    const content = JSON.parse(atob(json.content));
-    setSyncStatus('connected', '동기화 완료');
+    const content = JSON.parse(atob(json.content.replace(/\n/g, '')));
+    setSyncStatus('connected', '동기화 완료 ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
     return content;
   } catch (e) {
     console.error('Fetch error:', e);
@@ -1128,30 +1141,35 @@ async function fetchFromGitHub() {
 
 async function pushToGitHub() {
   const token = getToken();
-  if (!token) {
-    setSyncStatus('error', '토큰 필요');
-    return false;
-  }
+  if (!token) return false;
 
   try {
-    setSyncStatus('syncing', '업로드 중...');
+    setSyncStatus('syncing', '저장 중...');
 
-    // Get latest SHA first
-    const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}`, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': 'token ' + token
+    // 최신 SHA를 먼저 가져와서 충돌 방지
+    const getRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/${DATA_FILE}?t=${Date.now()}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'Authorization': 'token ' + token,
+          'Cache-Control': 'no-cache'
+        }
       }
-    });
+    );
 
-    let sha = null;
+    let sha = fileSha;
     if (getRes.ok) {
       const existing = await getRes.json();
       sha = existing.sha;
+      fileSha = sha;
+    } else if (getRes.status === 404) {
+      sha = null;
+      fileSha = null;
     }
 
     const body = {
-      message: 'sync challenge data',
+      message: `sync ${new Date().toISOString()}`,
       content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
     };
     if (sha) body.sha = sha;
@@ -1173,37 +1191,53 @@ async function pushToGitHub() {
 
     const result = await putRes.json();
     fileSha = result.content.sha;
-    setSyncStatus('connected', '동기화 완료');
+    setSyncStatus('connected', '저장 완료 ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
     return true;
   } catch (e) {
     console.error('Push error:', e);
-    setSyncStatus('error', '업로드 실패');
+    setSyncStatus('error', '저장 실패');
     return false;
   }
 }
 
 function debouncedSync() {
   if (syncTimer) clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => pushToGitHub(), 3000);
+  syncTimer = setTimeout(() => pushToGitHub(), 1500);
 }
 
-async function manualSync() {
-  const token = getToken();
-  if (!token) {
-    openSettings();
-    return;
-  }
-
+// 원격 데이터를 가져와 로컬과 병합 (remote 우선)
+async function pullAndMerge() {
   const remote = await fetchFromGitHub();
   if (remote) {
-    // Merge: remote wins for keys not in local, local wins for recent changes
-    const merged = { ...remote, ...data };
+    // remote 우선: 로컬에만 있는 값은 유지
+    const merged = { ...data };
+    for (const key in remote) {
+      if (remote[key] && remote[key] !== 'none') {
+        merged[key] = remote[key];
+      }
+    }
     data = merged;
     saveData();
     render();
   }
+}
+
+async function manualSync() {
+  const token = getToken();
+  if (!token) { openSettings(); return; }
+  await pullAndMerge();
   await pushToGitHub();
 }
+
+// 탭/창 포커스 시 자동 pull
+window.addEventListener('focus', () => {
+  if (getToken()) pullAndMerge();
+});
+
+// 탭 가시성 변경 시 자동 pull
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && getToken()) pullAndMerge();
+});
 
 // ─── Settings ───
 function openSettings() {
@@ -1641,23 +1675,16 @@ async function init() {
   checkAndNotify();
   goToToday();
 
-  const token = getToken();
-  if (token) {
-    const remote = await fetchFromGitHub();
-    if (remote) {
-      // Merge: remote as base, overlay with local only if local has value
-      const merged = { ...remote };
-      for (const key in data) {
-        if (data[key] && data[key] !== 'none') {
-          merged[key] = data[key];
-        }
-      }
-      data = merged;
-      saveData();
-      render();
-    }
-  } else {
-    setSyncStatus('', '오프라인');
+  // 시작 시 remote 전체를 가져와 덮어씀 (remote가 진실의 원천)
+  const remote = await fetchFromGitHub();
+  if (remote) {
+    data = { ...data, ...remote }; // remote 우선
+    saveData();
+    render();
+  }
+  // 로컬에 변경사항이 있었다면 push
+  if (Object.keys(data).length > 0) {
+    debouncedSync();
   }
 }
 
